@@ -1,0 +1,46 @@
+package com.example.guitapp.guitar.list
+
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.guitapp.guitar.data.Guitar
+import com.example.guitapp.guitar.data.GuitarRepository
+import com.example.guitapp.guitar.data.local.GuitarDatabase
+import kotlinx.coroutines.launch
+import java.util.*
+
+class GuitarListViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val mutableLoading = MutableLiveData<Boolean>().apply { value = false }
+    private val mutableException = MutableLiveData<Exception>().apply { value = null }
+
+    val items: LiveData<List<Guitar>>
+    val loading: LiveData<Boolean> = mutableLoading
+    val loadingError: LiveData<Exception> = mutableException
+
+    val guitarRepository: GuitarRepository
+
+    init {
+        val guitarDao = GuitarDatabase.getDatabase(application, viewModelScope).guitarDao()
+        guitarRepository = GuitarRepository(guitarDao)
+        items = guitarRepository.items
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            Log.v(javaClass.name, "refresh...");
+            mutableLoading.value = true
+            mutableException.value = null
+            try {
+                guitarRepository.refresh()
+            } catch(e: Exception) {
+                Log.e(javaClass.name,e.toString())
+                mutableException.value = e
+            }
+            mutableLoading.value = false
+        }
+    }
+}
