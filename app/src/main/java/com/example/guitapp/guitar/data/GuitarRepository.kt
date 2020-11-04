@@ -6,7 +6,11 @@ import com.example.guitapp.guitar.data.remote.GuitarApi
 
 class GuitarRepository(private val guitarDao: GuitarDao) {
 
-    val items = guitarDao.getAll();
+    val items = guitarDao.getAll()
+
+    init {
+        GuitarApi.myWebSocketListener.guitarDao = guitarDao
+    }
 
     suspend fun refresh() {
         val items = GuitarApi.service.find()
@@ -19,29 +23,15 @@ class GuitarRepository(private val guitarDao: GuitarDao) {
         return guitarDao.getById(itemId)
     }
 
-    suspend fun save(guitar: Guitar, local:Boolean = false): Guitar {
-        var savedGuitar = guitar
-        if(!local) {
-            savedGuitar=GuitarApi.service.create(guitar)
-        }
-        guitarDao.insert(savedGuitar)
-        return savedGuitar
+    suspend fun save(guitar: Guitar): Guitar {
+        return GuitarApi.service.create(guitar)
     }
 
-    suspend fun update(guitar: Guitar, local:Boolean = false): Guitar {
-        var updatedItem = guitar
-        if(!local) {
-            updatedItem = GuitarApi.service.update(guitar._id, guitar)
-        }
-        guitarDao.update(updatedItem)
-        return updatedItem
+    suspend fun update(guitar: Guitar): Guitar {
+        return GuitarApi.service.update(guitar._id, guitar)
     }
 
-    suspend fun delete(guitar: Guitar, local:Boolean = false): Guitar {
-        if (!local){
-            GuitarApi.service.delete(guitar._id)
-        }
-        guitarDao.delete(guitar)
-        return guitar
+    suspend fun delete(guitar: Guitar): Guitar {
+        return GuitarApi.service.delete(guitar._id)
     }
 }

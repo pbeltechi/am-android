@@ -11,24 +11,21 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import com.example.guitapp.R
-import com.example.guitapp.guitar.data.Guitar
-import com.example.guitapp.guitar.data.WebSocketEvent
-import com.example.guitapp.guitar.data.remote.GuitarApi
-import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_guitar_list.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-class GuitarListFragment: Fragment() {
+class GuitarListFragment : Fragment() {
 
     private lateinit var guitarModel: GuitarListViewModel
     private lateinit var guitarListAdapter: GuitarListAdapter
-    private var isListening = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.v(javaClass.name, "onCreate")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.v(javaClass.name, "onDestroy")
     }
 
     override fun onCreateView(
@@ -53,31 +50,6 @@ class GuitarListFragment: Fragment() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        isListening = true
-        CoroutineScope(Dispatchers.Main).launch { collectWebSocketEvents() }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        isListening = false
-    }
-
-    private suspend fun collectWebSocketEvents() {
-        while (isListening) {
-            val event = Gson().fromJson<WebSocketEvent>(GuitarApi.eventChannel.receive(), WebSocketEvent::class.java)
-            Log.i("MainActivity", "received $event")
-            if (event.type.equals("created")) {
-                guitarModel.guitarRepository.save(event.payload,true)
-            } else if(event.type.equals("updated")) {
-                guitarModel.guitarRepository.update(event.payload,true)
-            } else if(event.type.equals("deleted")) {
-                guitarModel.guitarRepository.delete(event.payload,true)
-            }
-        }
-    }
-
     private fun setupGuitarList() {
         guitarListAdapter = GuitarListAdapter(this)
         guitar_list.adapter = guitarListAdapter
@@ -98,10 +70,5 @@ class GuitarListFragment: Fragment() {
             }
         })
         guitarModel.refresh()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.v(javaClass.name, "onDestroy")
     }
 }

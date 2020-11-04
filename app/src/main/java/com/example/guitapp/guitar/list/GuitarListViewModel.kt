@@ -10,7 +10,6 @@ import com.example.guitapp.guitar.data.Guitar
 import com.example.guitapp.guitar.data.GuitarRepository
 import com.example.guitapp.guitar.data.local.GuitarDatabase
 import kotlinx.coroutines.launch
-import java.util.*
 
 class GuitarListViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -21,7 +20,7 @@ class GuitarListViewModel(application: Application) : AndroidViewModel(applicati
     val loading: LiveData<Boolean> = mutableLoading
     val loadingError: LiveData<Exception> = mutableException
 
-    val guitarRepository: GuitarRepository
+    private val guitarRepository: GuitarRepository
 
     init {
         val guitarDao = GuitarDatabase.getDatabase(application, viewModelScope).guitarDao()
@@ -36,8 +35,8 @@ class GuitarListViewModel(application: Application) : AndroidViewModel(applicati
             mutableException.value = null
             try {
                 guitarRepository.refresh()
-            } catch(e: Exception) {
-                Log.e(javaClass.name,e.toString())
+            } catch (e: Exception) {
+                Log.e(javaClass.name, e.toString())
                 mutableException.value = e
             }
             mutableLoading.value = false

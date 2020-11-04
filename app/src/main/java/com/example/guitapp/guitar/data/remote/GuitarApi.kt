@@ -4,10 +4,11 @@ import android.util.Log
 import com.example.guitapp.core.Api
 import com.example.guitapp.core.Api.WS_URL
 import com.example.guitapp.guitar.data.Guitar
-import kotlinx.coroutines.channels.Channel
+import com.example.guitapp.guitar.data.WebSocketEvent
+import com.example.guitapp.guitar.data.local.GuitarDao
+import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
-import okio.ByteString
 import retrofit2.http.*
 import retrofit2.http.Headers
 
@@ -34,27 +35,44 @@ object GuitarApi {
     }
 
     val service: Service = Api.retrofit.create(Service::class.java)
-
-    val eventChannel = Channel<String>()
+    val myWebSocketListener: MyWebSocketListener
 
     init {
         val request = Request.Builder().url(WS_URL).build()
-        val webSocket = OkHttpClient().newWebSocket(request, MyWebSocketListener())
+        myWebSocketListener =  MyWebSocketListener()
+        OkHttpClient().newWebSocket(request, myWebSocketListener)
     }
 
-    private class MyWebSocketListener : WebSocketListener() {
+    class MyWebSocketListener : WebSocketListener() {
+
+        lateinit var guitarDao: GuitarDao
+
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.d("WebSocket", "onOpen")
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            Log.d("WebSocket", "onMessage$text")
-            runBlocking { eventChannel.send(text) }
+            if (::guitarDao.isInitialized) {
+                runBlocking { collectWebSocketEvent(text) }
+            } else {
+                Log.w("WebSocket", "received $text but Dao is not initialized")
+            }
         }
 
-        override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-            Log.d("WebSocket", "onMessage bytes")
-            output("Receiving bytes : " + bytes!!.hex())
+        suspend fun collectWebSocketEvent(eventText: String) {
+            val event = Gson().fromJson<WebSocketEvent>(eventText, WebSocketEvent::class.java)
+            Log.i("WebSocket", "received $event")
+            when (event.type) {
+                "created" -> {
+                    guitarDao.insert(event.payload)
+                }
+                "updated" -> {
+                    guitarDao.update(event.payload)
+                }
+                "deleted" -> {
+                    guitarDao.delete(event.payload)
+                }
+            }
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
@@ -64,10 +82,6 @@ object GuitarApi {
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             Log.e("WebSocket", "onFailure", t)
             t.printStackTrace()
-        }
-
-        private fun output(txt: String) {
-            Log.d("WebSocket", txt)
         }
     }
 }

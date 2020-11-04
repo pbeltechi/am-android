@@ -42,16 +42,14 @@ abstract class GuitarDatabase : RoomDatabase() {
                 super.onOpen(db)
                 INSTANCE?.let { database ->
                     scope.launch(Dispatchers.IO) {
-                        populateDatabase(database.guitarDao())
+                        clearDatabase(database.guitarDao())
                     }
                 }
             }
         }
 
-        suspend fun populateDatabase(guitarDao: GuitarDao) {
+        suspend fun clearDatabase(guitarDao: GuitarDao) {
             guitarDao.deleteAll()
-//            val item = Item("1", "Hello")
-//            guitarDao.insert(item)
         }
     }
 }

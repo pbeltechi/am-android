@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.text.DateFormat
 
 object Api {
     private const val URL = "http://192.168.0.109:3000/"
@@ -20,7 +19,7 @@ object Api {
         .setLenient()
         .create()
 
-    val retrofit = Retrofit.Builder()
+    val retrofit: Retrofit = Retrofit.Builder()
         .baseUrl(URL)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .client(client)

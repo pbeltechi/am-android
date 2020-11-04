@@ -1,4 +1,3 @@
 package com.example.guitapp.guitar.data
 
-class WebSocketEvent(val type: String, val payload: Guitar) {
-}
+class WebSocketEvent(val type: String, val payload: Guitar)
