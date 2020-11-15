@@ -15,6 +15,7 @@ import retrofit2.http.Headers
 object GuitarApi {
 
     interface Service {
+        @Headers("Authorization: Bearer ")
         @GET("/api/guitars")
         suspend fun find(): List<Guitar>
 
