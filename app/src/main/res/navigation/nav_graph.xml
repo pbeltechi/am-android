@@ -3,7 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/fragment_guitar_list">
+    app:startDestination="@id/fragment_login">
+    <fragment
+        android:id="@+id/fragment_login"
+        android:name="com.example.guitapp.auth.login.LoginFragment"
+        android:label="@string/login_fragment_label"
+        tools:layout="@layout/fragment_login">
+
+        <action
+            android:id="@+id/action_LoginFragment_to_GuitarListFragment"
+            app:destination="@id/fragment_guitar_list" />
+    </fragment>
     <fragment
         android:id="@+id/fragment_guitar_list"
         android:name="com.example.guitapp.guitar.list.GuitarListFragment"
