@@ -1,10 +1,12 @@
 package com.example.guitapp.guitar.data.remote
 
 import android.util.Log
+import com.example.guitapp.auth.data.TokenHolder
 import com.example.guitapp.core.Api
 import com.example.guitapp.core.Api.WS_URL
 import com.example.guitapp.guitar.data.Guitar
 import com.example.guitapp.guitar.data.WebSocketEvent
+import com.example.guitapp.guitar.data.WsAuth
 import com.example.guitapp.guitar.data.local.GuitarDao
 import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
@@ -39,8 +41,11 @@ object GuitarApi {
     val myWebSocketListener: MyWebSocketListener
 
     init {
+        myWebSocketListener = MyWebSocketListener()
+    }
+
+    fun connectWs() {
         val request = Request.Builder().url(WS_URL).build()
-        myWebSocketListener =  MyWebSocketListener()
         OkHttpClient().newWebSocket(request, myWebSocketListener)
     }
 
@@ -50,6 +55,11 @@ object GuitarApi {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.d("WebSocket", "onOpen")
+            val wsAuth = WsAuth(
+                "authorization",
+                TokenHolder("" + Api.tokenInterceptor.token)
+            )
+            webSocket.send(Gson().toJson(wsAuth))
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {

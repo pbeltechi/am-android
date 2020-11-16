@@ -1,8 +1,10 @@
 package com.example.guitapp.guitar.data
 
 import androidx.lifecycle.LiveData
+import com.example.guitapp.MainActivity
 import com.example.guitapp.guitar.data.local.GuitarDao
 import com.example.guitapp.guitar.data.remote.GuitarApi
+
 
 class GuitarRepository(private val guitarDao: GuitarDao) {
 
@@ -13,9 +15,11 @@ class GuitarRepository(private val guitarDao: GuitarDao) {
     }
 
     suspend fun refresh() {
-        val items = GuitarApi.service.find()
-        for (item in items) {
-            guitarDao.insert(item)
+        if (MainActivity.networkStatusIsConnected) {
+            val items = GuitarApi.service.find()
+            for (item in items) {
+                guitarDao.insert(item)
+            }
         }
     }
 
@@ -24,14 +28,29 @@ class GuitarRepository(private val guitarDao: GuitarDao) {
     }
 
     suspend fun save(guitar: Guitar): Guitar {
-        return GuitarApi.service.create(guitar)
+        var saveGuitar = guitar
+        if (MainActivity.networkStatusIsConnected) {
+            saveGuitar = GuitarApi.service.create(guitar)
+        }
+        guitarDao.insert(saveGuitar)
+        return saveGuitar
     }
 
     suspend fun update(guitar: Guitar): Guitar {
-        return GuitarApi.service.update(guitar._id, guitar)
+        var saveGuitar = guitar
+        if (MainActivity.networkStatusIsConnected) {
+            saveGuitar =  GuitarApi.service.update(guitar._id, guitar)
+        }
+        guitarDao.update(saveGuitar)
+        return saveGuitar
     }
 
     suspend fun delete(guitar: Guitar): Guitar {
-        return GuitarApi.service.delete(guitar._id)
+        var saveGuitar = guitar
+        if (MainActivity.networkStatusIsConnected) {
+            saveGuitar = GuitarApi.service.delete(guitar._id)
+        }
+        guitarDao.delete(saveGuitar)
+        return saveGuitar
     }
 }

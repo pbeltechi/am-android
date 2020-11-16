@@ -9,6 +9,9 @@ interface TokenDao {
     @Query("SELECT * from tokens")
     fun getAll(): LiveData<List<TokenHolder>>
 
+    @Query("SELECT * from tokens limit 1")
+    fun getOne(): LiveData<TokenHolder>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(token: TokenHolder)
 

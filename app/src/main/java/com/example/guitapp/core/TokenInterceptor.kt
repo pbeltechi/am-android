@@ -1,5 +1,6 @@
 package com.example.guitapp.core
 
+import com.google.gson.Gson
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -7,15 +8,18 @@ class TokenInterceptor constructor() : Interceptor {
     var token: String? = null
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val original = chain.request()
+        var original = chain.request()
         val originalUrl = original.url
         if (token == null) {
             return chain.proceed(original)
         }
-        val requestBuilder = original.newBuilder()
-            .addHeader("Authorization", "Bearer $token")
-            .url(originalUrl)
-        val request = requestBuilder.build()
-        return chain.proceed(request)
+        if (token != null) {
+            val tokenHeader = "Bearer " + token
+            val requestBuilder = original.newBuilder()
+                .header("Authorization", tokenHeader)
+                .url(originalUrl)
+            original = requestBuilder.build()
+        }
+        return chain.proceed(original)
     }
 }

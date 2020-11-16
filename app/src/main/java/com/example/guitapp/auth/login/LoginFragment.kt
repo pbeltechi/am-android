@@ -10,10 +10,13 @@ import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.observe
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import com.example.guitapp.R
 import com.example.guitapp.auth.data.AuthRepository
 import com.example.guitapp.auth.data.TokenHolder
+import com.example.guitapp.auth.data.local.TokenDatabase
+import com.example.guitapp.guitar.list.GuitarListViewModel
 import kotlinx.android.synthetic.main.fragment_login.*
 import java.lang.Exception
 
@@ -46,8 +49,6 @@ class LoginFragment : Fragment() {
         })
         viewModel.loginResult.observe(viewLifecycleOwner, { loginResult ->
             loading.visibility = View.GONE
-            println("algoairmrina rainsin siniani ")
-            println(loginResult)
             if (loginResult is Exception) {
                 error_text.text = "Login error ${loginResult.message}"
                 error_text.visibility = View.VISIBLE

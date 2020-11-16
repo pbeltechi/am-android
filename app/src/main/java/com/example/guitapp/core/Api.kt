@@ -6,8 +6,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object Api {
-    private const val URL = "http://192.168.0.108:3000/"
-    const val WS_URL = "ws://192.168.0.108:3000/"
+    private const val URL = "http://192.168.0.101:3000/"
+    const val WS_URL = "ws://192.168.0.101:3000/"
 
     val tokenInterceptor = TokenInterceptor()
     private val client: OkHttpClient = OkHttpClient.Builder().apply {

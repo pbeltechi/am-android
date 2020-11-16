@@ -4,11 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.guitapp.R
 import com.example.guitapp.auth.data.AuthRepository
-import com.example.guitapp.auth.data.User
 import com.example.guitapp.auth.data.local.TokenDatabase
-import com.example.guitapp.core.Api
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
@@ -20,14 +16,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val mutableLoginResult = MutableLiveData<Any>()
     val loginResult: LiveData<Any> = mutableLoginResult
 
-    init {
-        val tokenDao = TokenDatabase.getDatabase(application, viewModelScope).tokenDao();
-        AuthRepository.tokenDao = tokenDao
-        mutableLoginResult.value = tokenDao.getAll()
-    }
-
     fun login(username: String, password: String) {
-        println(username)
         viewModelScope.launch {
             try {
                 mutableLoginResult.value = AuthRepository.login(username, password)
