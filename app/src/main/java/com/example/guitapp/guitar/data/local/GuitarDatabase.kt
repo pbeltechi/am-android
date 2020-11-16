@@ -42,7 +42,7 @@ abstract class GuitarDatabase : RoomDatabase() {
                 super.onOpen(db)
                 INSTANCE?.let { database ->
                     scope.launch(Dispatchers.IO) {
-                        clearDatabase(database.guitarDao())
+//                        clearDatabase(database.guitarDao())
                     }
                 }
             }
